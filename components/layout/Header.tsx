@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "../ui/Button";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "@/components/layout/AuthContext";
 
 export const Header: React.FC = () => {
   const pathname = usePathname();
