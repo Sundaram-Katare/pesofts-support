@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PeSofts Knowledge Platform | Online Assessment & Examination Guide",
+  title: "PeSofts Platform | Online Assessment & Examination Guide",
   description: "Learn everything about Online Examination Software, AI Proctoring, Digital Assessments, and modern examination practices. Explore detailed guides, resources, and articles.",
   keywords: "online exam software, AI proctoring, computer based testing, question banks, digital assessments",
 };

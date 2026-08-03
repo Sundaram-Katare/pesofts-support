@@ -14,6 +14,7 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const isKnowledgeBase = pathname.startsWith("/knowledge-base");
+  const isCommunity = pathname.startsWith("/community");
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,12 +61,16 @@ export const Header: React.FC = () => {
             >
               Academy
             </span>
-            <span
-              className="px-3 py-1.5 text-sm font-medium text-pesofts-gray-300 cursor-not-allowed"
-              title="Coming Soon"
+            <Link
+              href="/community"
+              className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors duration-150 ${
+                isCommunity
+                  ? "bg-pesofts-gray-100 text-pesofts-gray-900"
+                  : "text-pesofts-gray-600 hover:text-pesofts-gray-900 hover:bg-pesofts-gray-50"
+              }`}
             >
               Community
-            </span>
+            </Link>
           </nav>
         </div>
 
