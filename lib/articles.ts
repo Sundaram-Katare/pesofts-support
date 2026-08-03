@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isUsingMockAuth } from "@/lib/supabase";
 
 export interface Article {
   title: string;
@@ -24,36 +24,80 @@ interface ArticleRow {
 
 export async function getArticles(): Promise<Article[]> {
   try {
-    const { data, error } = await supabase
-      .from("articles")
-      .select("*");
+    if (isUsingMockAuth) {
+      if (typeof window === "undefined") {
+        // Server-side: read directly from filesystem
+        const fs = await import("fs");
+        const path = await import("path");
+        const matter = (await import("gray-matter")).default;
+        const contentDir = path.join(process.cwd(), "content/knowledge-base");
 
-    if (error) {
-      console.error("Error fetching articles:", error);
-      return [];
-    }
+        if (!fs.existsSync(contentDir)) {
+          return [];
+        }
 
-    const allArticlesData = (data as unknown as ArticleRow[] || []).map((row) => {
-      return {
-        slug: row.slug,
-        title: row.title || "Untitled",
-        description: row.description || "",
-        category: row.category || "General",
-        readingTime: row.reading_time || row.readingTime || "5 min",
-        lastUpdated: (row.updated_at || row.lastUpdated)
-          ? new Date((row.updated_at || row.lastUpdated) as string).toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0],
-        content: row.content || "",
-      } as Article;
-    });
+        const fileNames = fs.readdirSync(contentDir);
+        const articles = fileNames
+          .filter((name) => name.endsWith(".md"))
+          .map((name) => {
+            const fullPath = path.join(contentDir, name);
+            const fileContents = fs.readFileSync(fullPath, "utf8");
+            const matterResult = matter(fileContents);
+            return {
+              slug: matterResult.data.slug || name.replace(/\.md$/, ""),
+              title: matterResult.data.title || "Untitled",
+              description: matterResult.data.description || "",
+              category: matterResult.data.category || "General",
+              readingTime: matterResult.data.readingTime || matterResult.data.reading_time || "5 min",
+              lastUpdated: matterResult.data.lastUpdated || matterResult.data.updatedAt || new Date().toISOString().split("T")[0],
+              content: matterResult.content,
+            } as Article;
+          });
 
-    return allArticlesData.sort((a, b) => {
-      if (a.lastUpdated < b.lastUpdated) {
-        return 1;
+        return articles.sort((a, b) => (a.lastUpdated < b.lastUpdated ? 1 : -1));
       } else {
-        return -1;
+        // Client-side: fetch from API
+        const res = await fetch("/api/articles");
+        if (!res.ok) throw new Error("Failed to fetch articles");
+        const json = await res.json();
+        const articles = (json.articles || []).map((art: any) => ({
+          slug: art.slug,
+          title: art.title || "Untitled",
+          description: art.description || "",
+          category: art.category || "General",
+          readingTime: art.readingTime || "5 min",
+          lastUpdated: art.lastUpdated || new Date().toISOString().split("T")[0],
+          content: art.content || "",
+        })) as Article[];
+        return articles.sort((a, b) => (a.lastUpdated < b.lastUpdated ? 1 : -1));
       }
-    });
+    } else {
+      // Real database validation
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*");
+
+      if (error) {
+        console.error("Error fetching articles from Supabase:", error);
+        return [];
+      }
+
+      const allArticlesData = (data as unknown as ArticleRow[] || []).map((row) => {
+        return {
+          slug: row.slug,
+          title: row.title || "Untitled",
+          description: row.description || "",
+          category: row.category || "General",
+          readingTime: row.reading_time || row.readingTime || "5 min",
+          lastUpdated: (row.updated_at || row.lastUpdated)
+            ? new Date((row.updated_at || row.lastUpdated) as string).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+          content: row.content || "",
+        } as Article;
+      });
+
+      return allArticlesData.sort((a, b) => (a.lastUpdated < b.lastUpdated ? 1 : -1));
+    }
   } catch (err) {
     console.error("Failed to load articles:", err);
     return [];
@@ -62,32 +106,36 @@ export async function getArticles(): Promise<Article[]> {
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
-    const { data, error } = await supabase
-      .from("articles")
-      .select("*")
-      .eq("slug", slug)
-      .single();
-
-    if (error || !data) {
-      // Fallback: search in getArticles
+    if (isUsingMockAuth) {
       const articles = await getArticles();
       return articles.find((art) => art.slug === slug) || null;
-    }
+    } else {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("slug", slug)
+        .single();
 
-    return {
-      slug: data.slug,
-      title: data.title || "Untitled",
-      description: data.description || "",
-      category: data.category || "General",
-      readingTime: data.reading_time || data.readingTime || "5 min",
-      lastUpdated: (data.updated_at || data.lastUpdated)
-        ? new Date((data.updated_at || data.lastUpdated) as string).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
-      content: data.content || "",
-    } as Article;
-  } catch {
-    const articles = await getArticles();
-    return articles.find((art) => art.slug === slug) || null;
+      if (error || !data) {
+        const articles = await getArticles();
+        return articles.find((art) => art.slug === slug) || null;
+      }
+
+      return {
+        slug: data.slug,
+        title: data.title || "Untitled",
+        description: data.description || "",
+        category: data.category || "General",
+        readingTime: data.reading_time || data.readingTime || "5 min",
+        lastUpdated: (data.updated_at || data.lastUpdated)
+          ? new Date((data.updated_at || data.lastUpdated) as string).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
+        content: data.content || "",
+      } as Article;
+    }
+  } catch (err) {
+    console.error(`Failed to get article by slug ${slug}:`, err);
+    return null;
   }
 }
 

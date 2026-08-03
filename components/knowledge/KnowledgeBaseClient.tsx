@@ -9,6 +9,7 @@ import { SearchBar } from "../ui/SearchBar";
 import { Button } from "../ui/Button";
 import { Article, CategoryInfo } from "@/lib/articles";
 import { RefreshCw } from "lucide-react";
+import { useAuth } from "@/components/layout/AuthContext";
 
 interface KnowledgeBaseClientProps {
   initialArticles: Article[];
@@ -19,6 +20,9 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
   initialArticles,
   categories,
 }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -91,13 +95,24 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
       <Breadcrumb items={[{ label: "Knowledge Base" }]} className="mb-6" />
 
       {/* Hero Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-pesofts-gray-900 tracking-tight mb-4">
-          Knowledge Base
-        </h1>
-        <p className="text-base sm:text-lg text-pesofts-gray-500 max-w-3xl leading-relaxed">
-          Industry concepts, frameworks and long-form guides on online examinations, AI proctoring and modern assessment — written by practitioners.
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-pesofts-gray-900 tracking-tight mb-4">
+            Knowledge Base
+          </h1>
+          <p className="text-base sm:text-lg text-pesofts-gray-500 max-w-3xl leading-relaxed">
+            Industry concepts, frameworks and long-form guides on online examinations, AI proctoring and modern assessment — written by practitioners.
+          </p>
+        </div>
+        {isAdmin && (
+          <Button
+            href="/knowledge-base/new"
+            variant="primary"
+            className="!px-4 !py-2.5 !text-xs font-bold shrink-0 shadow-sm transition-transform hover:-translate-y-0.5"
+          >
+            + Add Article
+          </Button>
+        )}
       </div>
 
       {/* Dynamic Search Bar */}
@@ -154,11 +169,11 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
             </h2>
           </div>
 
-          {!searchQuery && !activeCategory && (
-            <span className="text-sm font-semibold text-pesofts-gray-400 hover:text-pesofts-red transition-colors duration-150">
-              View all
-            </span>
-          )}
+          {/* {!searchQuery && !activeCategory && (
+            // <span className="text-sm font-semibold text-pesofts-gray-400 hover:text-pesofts-red transition-colors duration-150">
+            //   View all
+            // </span>
+          )} */}
         </div>
 
         {filteredArticles.length === 0 ? (

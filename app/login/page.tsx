@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginMode, setLoginMode] = useState<"user" | "admin">("user");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,20 +21,40 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (authError) {
         setError(authError.message);
-      } else {
-        router.push("/");
-        router.refresh();
+        setLoading(false);
+        return;
       }
+
+      if (data?.user) {
+        // Fetch role from profiles table
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+        const userRole = profile?.role || "user";
+
+        if (loginMode === "admin" && userRole !== "admin") {
+          // Log out immediately if the user is not an admin
+          await supabase.auth.signOut();
+          setError("Access denied. This account does not have administrator privileges.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      router.push("/");
+      router.refresh();
     } catch {
       setError("An unexpected error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -51,11 +72,43 @@ export default function LoginPage() {
             </span>
           </Link>
           <h2 className="text-2xl font-black text-pesofts-gray-900 tracking-tight">
-            Welcome back
+            {loginMode === "admin" ? "Admin Portal" : "Welcome back"}
           </h2>
           <p className="mt-1.5 text-sm text-pesofts-gray-500">
-            Sign in to access bookmarked articles and resources
+            {loginMode === "admin" ? "Access administration controls & write articles" : "Sign in to access bookmarked articles and resources"}
           </p>
+        </div>
+
+        {/* Login Mode Toggle */}
+        <div className="flex bg-pesofts-gray-100 p-1 rounded-xl mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              setLoginMode("user");
+              setError(null);
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
+              loginMode === "user"
+                ? "bg-white text-pesofts-gray-900 shadow-sm"
+                : "text-pesofts-gray-500 hover:text-pesofts-gray-900"
+            }`}
+          >
+            Login as User
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLoginMode("admin");
+              setError(null);
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-150 ${
+              loginMode === "admin"
+                ? "bg-white text-pesofts-gray-900 shadow-sm"
+                : "text-pesofts-gray-500 hover:text-pesofts-gray-900"
+            }`}
+          >
+            Login as Admin
+          </button>
         </div>
 
         {error && (
@@ -65,7 +118,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-6 space-y-6" onSubmit={handleLogin}>
           <div className="space-y-4 rounded-md">
             <div>
               <label htmlFor="email-address" className="block text-xs font-bold uppercase tracking-wider text-pesofts-gray-400 mb-1.5">
@@ -84,7 +137,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-pesofts-gray-200 rounded-lg placeholder-pesofts-gray-400 text-pesofts-gray-900 focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm transition-all"
-                  placeholder="name@company.com"
+                  placeholder={loginMode === "admin" ? "admin@pesofts.com" : "name@company.com"}
                 />
               </div>
             </div>
@@ -123,7 +176,7 @@ export default function LoginPage() {
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>{loginMode === "admin" ? "Sign In as Admin" : "Sign In"}</span>
                   <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </>
               )}
@@ -132,12 +185,18 @@ export default function LoginPage() {
         </form>
 
         <div className="text-center mt-6">
-          <p className="text-xs text-pesofts-gray-500">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="font-semibold text-pesofts-red hover:underline">
-              Create an account
-            </Link>
-          </p>
+          {loginMode === "user" ? (
+            <p className="text-xs text-pesofts-gray-500">
+              Don&apos;t have an account?{" "}
+              <Link href="/signup" className="font-semibold text-pesofts-red hover:underline">
+                Create an account
+              </Link>
+            </p>
+          ) : (
+            <p className="text-xs text-pesofts-gray-400">
+              Admin registration is managed by system database.
+            </p>
+          )}
         </div>
       </div>
     </div>

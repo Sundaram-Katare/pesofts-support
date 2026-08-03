@@ -21,7 +21,7 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -29,6 +29,18 @@ export default function SignupPage() {
       if (authError) {
         setError(authError.message);
       } else {
+        if (data?.user) {
+          try {
+            await supabase.from("profiles").insert({
+              id: data.user.id,
+              email: email.toLowerCase(),
+              role: "user",
+              full_name: email.split("@")[0],
+            });
+          } catch (profileErr) {
+            console.error("Error creating user profile in DB:", profileErr);
+          }
+        }
         setSuccess(true);
         // Automatically redirect to home page after 2 seconds
         setTimeout(() => {

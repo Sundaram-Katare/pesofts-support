@@ -91,20 +91,36 @@ export const ArticleContainer: React.FC<ArticleContainerProps> = ({
     setIsSaving(true);
 
     try {
-      const { error: updateError } = await supabase
-        .from("articles")
-        .update({
+      // Get the current user's session token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      if (!token) {
+        setError("Unauthorized: Please log in again.");
+        setIsSaving(false);
+        return;
+      }
+
+      const response = await fetch("/api/articles", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          slug: article.slug,
           title,
           description,
           category,
-          reading_time: readingTime,
+          readingTime,
           content,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("slug", article.slug);
+        }),
+      });
 
-      if (updateError) {
-        setError(updateError.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to update article.");
       } else {
         setIsEditing(false);
         router.refresh();

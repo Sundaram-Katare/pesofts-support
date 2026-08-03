@@ -44,6 +44,25 @@ class MockAuthService {
 
   constructor() {
     if (typeof window !== "undefined") {
+      // Initialize default admin if not present
+      const users = this.getLocalStorageUsers();
+      if (!users["admin@pesofts.com"]) {
+        users["admin@pesofts.com"] = "admin123";
+        this.saveLocalStorageUsers(users);
+      }
+      const profiles = this.getLocalStorageProfiles();
+      const adminId = "user-admin-pesofts-com";
+      if (!profiles[adminId]) {
+        profiles[adminId] = {
+          id: adminId,
+          email: "admin@pesofts.com",
+          role: "admin",
+          full_name: "Admin User",
+          created_at: new Date().toISOString()
+        };
+        this.saveLocalStorageProfiles(profiles);
+      }
+
       window.addEventListener("storage", (e) => {
         if (e.key === "pesofts_session") {
           const session = this.getLocalStorageSession();
@@ -65,6 +84,20 @@ class MockAuthService {
   private saveLocalStorageUsers(users: Record<string, string>) {
     if (typeof window === "undefined") return;
     localStorage.setItem("pesofts_users", JSON.stringify(users));
+  }
+
+  private getLocalStorageProfiles(): Record<string, any> {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem("pesofts_profiles") || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  private saveLocalStorageProfiles(profiles: Record<string, any>) {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("pesofts_profiles", JSON.stringify(profiles));
   }
 
   private getLocalStorageSession(): Session | null {
@@ -112,10 +145,23 @@ class MockAuthService {
     this.saveLocalStorageUsers(users);
 
     const user: User = {
-      id: Math.random().toString(36).substring(2, 15),
+      id: "user-" + email.toLowerCase().replace(/[^a-z0-9]/g, "-"),
       email: email.toLowerCase(),
       created_at: new Date().toISOString(),
     };
+
+    // Also insert user profile with role 'user' automatically
+    const profiles = this.getLocalStorageProfiles();
+    if (!profiles[user.id]) {
+      profiles[user.id] = {
+        id: user.id,
+        email: user.email,
+        role: "user",
+        full_name: email.split("@")[0],
+        created_at: user.created_at
+      };
+      this.saveLocalStorageProfiles(profiles);
+    }
 
     const session: Session = {
       access_token: "mock-jwt-token-" + user.id,
@@ -157,9 +203,13 @@ class MockAuthService {
       email: email.toLowerCase(),
     };
 
+    const profiles = this.getLocalStorageProfiles();
+    const profile = profiles[user.id];
+    const role = profile?.role || "user";
+
     const session: Session = {
       access_token: "mock-jwt-token-" + user.id,
-      user,
+      user: { ...user, role },
       expires_at: Math.floor(Date.now() / 1000) + 3600,
     };
 
@@ -167,7 +217,7 @@ class MockAuthService {
     this.notifyListeners("SIGNED_IN", session);
 
     return {
-      data: { user, session },
+      data: { user: { ...user, role }, session },
       error: null,
     };
   }
@@ -206,13 +256,16 @@ const mockAuthInstance = new MockAuthService();
 function mockQueryBuilder(table: string) {
   let queryPromise: Promise<{ data: any; error: any }> = (async () => {
     if (table === "profiles") {
-      const sessionStr = typeof window !== "undefined" ? localStorage.getItem("pesofts_session") : null;
-      if (sessionStr) {
-        const session = JSON.parse(sessionStr);
-        return {
-          data: [{ id: session.user.id, email: session.user.email, role: "admin", created_at: new Date().toISOString() }],
-          error: null,
-        };
+      if (typeof window !== "undefined") {
+        try {
+          const profiles = JSON.parse(localStorage.getItem("pesofts_profiles") || "{}");
+          return {
+            data: Object.values(profiles),
+            error: null,
+          };
+        } catch {
+          return { data: [], error: null };
+        }
       }
       return { data: [], error: null };
     }
@@ -269,6 +322,7 @@ function mockQueryBuilder(table: string) {
   })();
 
   let updateData: any = null;
+  let insertData: any = null;
 
   const builder = {
     select: (fields?: string) => {
@@ -332,8 +386,39 @@ function mockQueryBuilder(table: string) {
       })();
       return builder;
     },
+    insert: (data: any) => {
+      const prevPromise = queryPromise;
+      queryPromise = (async () => {
+        const res = await prevPromise;
+        if (res.error) return res;
+        insertData = data;
+        return res;
+      })();
+      return builder;
+    },
     then: (resolve: any, reject: any) => {
       queryPromise.then(async (res) => {
+        if (insertData && typeof window !== "undefined") {
+          if (table === "profiles") {
+            try {
+              const profiles = JSON.parse(localStorage.getItem("pesofts_profiles") || "{}");
+              const newProfile = Array.isArray(insertData) ? insertData[0] : insertData;
+              const id = newProfile.id || Math.random().toString(36).substring(2, 15);
+              profiles[id] = {
+                id,
+                role: newProfile.role || "user",
+                full_name: newProfile.full_name || "",
+                email: newProfile.email || "",
+                created_at: new Date().toISOString(),
+                ...newProfile
+              };
+              localStorage.setItem("pesofts_profiles", JSON.stringify(profiles));
+              return resolve({ data: [profiles[id]], error: null });
+            } catch (err: any) {
+              return resolve({ data: null, error: { message: err.message } });
+            }
+          }
+        }
         if (updateData && typeof window !== "undefined" && table === "articles") {
           const slug = res.data && (res.data as any).length > 0 ? (res.data as any)[0].slug : updateData.slug;
           if (slug) {
