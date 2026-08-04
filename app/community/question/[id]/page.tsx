@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/layout/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -296,9 +297,12 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                 {/* Author Avatar */}
                 <div className="w-12 h-12 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-base text-pesofts-gray-700 flex-shrink-0">
                   {question.profiles?.avatar_url ? (
-                    <img
+                    <Image
                       src={question.profiles.avatar_url}
                       alt={question.profiles.full_name || ""}
+                      width={48}
+                      height={48}
+                      unoptimized
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
@@ -418,9 +422,12 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                     {/* Reply Author Avatar */}
                     <div className="w-10 h-10 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-sm text-pesofts-gray-700 flex-shrink-0">
                       {reply.profiles?.avatar_url ? (
-                        <img
+                        <Image
                           src={reply.profiles.avatar_url}
                           alt={reply.profiles.full_name || ""}
+                          width={40}
+                          height={40}
+                          unoptimized
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
@@ -549,9 +556,12 @@ export default function QuestionDetailsPage({ params }: PageProps) {
               <div className="flex items-center space-x-3.5 mb-4">
                 <div className="w-10 h-10 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-sm text-pesofts-gray-700 flex-shrink-0">
                   {question.profiles?.avatar_url ? (
-                    <img
+                    <Image
                       src={question.profiles.avatar_url}
                       alt={question.profiles.full_name || ""}
+                      width={40}
+                      height={40}
+                      unoptimized
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (

@@ -1,23 +1,31 @@
-"use client";
-
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
+import { Metadata } from "next";
 import { BookOpen, FileText, GraduationCap, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { HeroSearch } from "@/components/home/HeroSearch";
+
+export const metadata: Metadata = {
+  title: "PeSofts Knowledge Platform | Guide on Online Examinations & Proctoring",
+  description: "Learn about online examination software, AI proctoring, CBT solutions, proctoring security standards, and best practices. Free resources, articles, and documentation.",
+  keywords: "online exam software, AI proctoring, computer based testing, question banks, digital assessments, examination security",
+  alternates: {
+    canonical: "https://pesofts-support.vercel.app",
+  },
+  openGraph: {
+    title: "PeSofts Knowledge Platform | Guide on Online Examinations & Proctoring",
+    description: "Learn about online examination software, AI proctoring, CBT solutions, proctoring security standards, and best practices.",
+    url: "https://pesofts-support.vercel.app",
+    type: "website",
+    siteName: "PeSofts Knowledge",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PeSofts Knowledge Platform | Guide on Online Examinations & Proctoring",
+    description: "Learn about online examination software, AI proctoring, CBT solutions, proctoring security standards, and best practices.",
+  },
+};
 
 export default function HomePage() {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/knowledge-base?q=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push("/knowledge-base");
-    }
-  };
-
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -30,63 +38,10 @@ export default function HomePage() {
             Learn everything about Online Examination Software, AI Proctoring, Digital Assessments and modern examination practices.
           </p>
 
-          {/* Large Search Bar */}
-          <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg
-                className="h-5 w-5 text-pesofts-gray-400 group-focus-within:text-pesofts-red transition-colors"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search concepts, articles, security tools..."
-              className="block w-full pl-11 pr-32 py-4 text-base text-pesofts-gray-900 placeholder-pesofts-gray-400 bg-white border border-pesofts-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent transition-all duration-150"
-            />
-            <div className="absolute inset-y-2 right-2 flex items-center">
-              <Button type="submit" variant="primary" className="h-full !py-0 !px-5 rounded-lg !text-xs font-bold">
-                Search
-              </Button>
-            </div>
-          </form>
-
-          {/* Quick links under search */}
-          <div className="mt-4 flex flex-wrap justify-center gap-2 text-sm text-pesofts-gray-400">
-            <span>Popular:</span>
-            <button
-              onClick={() => router.push("/knowledge-base?q=AI%20Proctoring")}
-              className="text-pesofts-gray-500 hover:text-pesofts-red underline decoration-dotted"
-            >
-              AI Proctoring
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => router.push("/knowledge-base?q=Browser%20Lock")}
-              className="text-pesofts-gray-500 hover:text-pesofts-red underline decoration-dotted"
-            >
-              Browser Lock
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => router.push("/knowledge-base?q=CBT")}
-              className="text-pesofts-gray-500 hover:text-pesofts-red underline decoration-dotted"
-            >
-              Computer Based Testing
-            </button>
-          </div>
+          <HeroSearch />
         </div>
       </section>
+
 
       {/* Grid Section */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

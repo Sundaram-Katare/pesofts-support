@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /knowledge-base/new
+Disallow: /api/
+
+# Host
+Host: https://pesofts-support.vercel.app
+
+# Sitemaps
+Sitemap: https://pesofts-support.vercel.app/sitemap.xml

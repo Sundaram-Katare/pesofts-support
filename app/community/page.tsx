@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/layout/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -443,9 +444,12 @@ export default function CommunityPage() {
                         {/* User Avatar */}
                         <div className="w-10 h-10 rounded-full bg-pesofts-gray-150 flex items-center justify-center font-bold text-sm text-pesofts-gray-700 bg-pesofts-gray-100 border border-pesofts-gray-200 flex-shrink-0">
                           {q.profiles?.avatar_url ? (
-                            <img
+                            <Image
                               src={q.profiles.avatar_url}
                               alt={q.profiles.full_name || ""}
+                              width={40}
+                              height={40}
+                              unoptimized
                               className="w-full h-full rounded-full object-cover"
                             />
                           ) : (
