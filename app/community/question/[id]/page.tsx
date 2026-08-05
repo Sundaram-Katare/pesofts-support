@@ -24,6 +24,7 @@ interface Reply {
   content: string;
   created_at: string;
   profiles?: Profile;
+  community_reply_upvotes?: { id: string; user_id: string }[];
 }
 
 interface Upvote {
@@ -84,14 +85,46 @@ export default function QuestionDetailsPage({ params }: PageProps) {
       const currentQuestion = qData as Question;
       setQuestion(currentQuestion);
 
-      // 2. Fetch Replies + Profiles
-      const { data: rData, error: rError } = await supabase
-        .from("community_replies")
-        .select("*, profiles:user_id(*)")
-        .eq("question_id", questionId)
-        .order("created_at", { ascending: true });
+      // 2. Fetch Replies + Profiles with comment upvotes
+      let rData: any = null;
+      let rError: any = null;
 
-      if (!rError && rData) {
+      try {
+        const res = await supabase
+          .from("community_replies")
+          .select("*, profiles:user_id(*), community_reply_upvotes(id, user_id)")
+          .eq("question_id", questionId)
+          .order("created_at", { ascending: true });
+
+        if (res.error) {
+          console.warn("Failed to fetch replies with upvotes, retrying without upvotes:", res.error);
+          const fallbackRes = await supabase
+            .from("community_replies")
+            .select("*, profiles:user_id(*)")
+            .eq("question_id", questionId)
+            .order("created_at", { ascending: true });
+
+          if (!fallbackRes.error) {
+            rData = fallbackRes.data?.map((reply: any) => ({ ...reply, community_reply_upvotes: [] }));
+          } else {
+            rError = fallbackRes.error;
+          }
+        } else {
+          rData = res.data;
+        }
+      } catch (e) {
+        console.error("Exception loading replies with upvotes, trying fallback:", e);
+        const fallbackRes = await supabase
+          .from("community_replies")
+          .select("*, profiles:user_id(*)")
+          .eq("question_id", questionId)
+          .order("created_at", { ascending: true });
+        if (!fallbackRes.error) {
+          rData = fallbackRes.data?.map((reply: any) => ({ ...reply, community_reply_upvotes: [] }));
+        }
+      }
+
+      if (rData) {
         setReplies(rData as Reply[]);
       }
 
@@ -161,6 +194,64 @@ export default function QuestionDetailsPage({ params }: PageProps) {
     }
   };
 
+  const handleReplyUpvote = async (replyId: string) => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    const reply = replies.find((r) => r.id === replyId);
+    if (!reply) return;
+
+    const upvotesList = reply.community_reply_upvotes || [];
+    const userUpvote = upvotesList.find((u) => u.user_id === user.id);
+
+    if (userUpvote) {
+      // Remove upvote
+      const { error } = await supabase
+        .from("community_reply_upvotes")
+        .delete()
+        .eq("id", userUpvote.id);
+
+      if (!error) {
+        setReplies((prev) =>
+          prev.map((r) => {
+            if (r.id === replyId) {
+              return {
+                ...r,
+                community_reply_upvotes: upvotesList.filter((u) => u.id !== userUpvote.id),
+              };
+            }
+            return r;
+          })
+        );
+      }
+    } else {
+      // Add upvote
+      const { data, error } = await supabase
+        .from("community_reply_upvotes")
+        .insert({ reply_id: replyId, user_id: user.id })
+        .select()
+        .single();
+
+      if (!error && data) {
+        setReplies((prev) =>
+          prev.map((r) => {
+            if (r.id === replyId) {
+              return {
+                ...r,
+                community_reply_upvotes: [...upvotesList, data],
+              };
+            }
+            return r;
+          })
+        );
+      } else if (error) {
+        console.error("Error upvoting reply:", error);
+      }
+    }
+  };
+
   const handleMarkSolved = async () => {
     if (!user || !question || !questionId) return;
 
@@ -208,7 +299,7 @@ export default function QuestionDetailsPage({ params }: PageProps) {
         console.error("Error creating reply:", error);
         setReplyError(error.message || "Failed to post reply.");
       } else if (data) {
-        setReplies((prev) => [...prev, data as Reply]);
+        setReplies((prev) => [...prev, { ...data, community_reply_upvotes: [] } as Reply]);
         setReplyContent("");
       }
     } catch (err: any) {
@@ -258,14 +349,18 @@ export default function QuestionDetailsPage({ params }: PageProps) {
     return (
       <div className="bg-pesofts-gray-50 flex-grow flex items-center justify-center py-20">
         {loading ? (
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pesofts-red"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
         ) : (
           <div className="text-center py-10">
-            <h2 className="text-xl font-bold text-pesofts-gray-900 mb-2">Discussion Not Found</h2>
-            <p className="text-sm text-pesofts-gray-500 mb-4">
+            <h2 className="text-xl font-bold text-black mb-2">Discussion Not Found</h2>
+            <p className="text-sm text-black mb-4">
               The requested discussion thread could not be found or has been deleted.
             </p>
-            <Button href="/community" variant="primary">
+            <Button 
+              href="/community" 
+              variant="primary"
+              className="!bg-orange-500 hover:!bg-orange-600 focus:!ring-orange-500 border-transparent text-white font-bold"
+            >
               Return to community
             </Button>
           </div>
@@ -275,13 +370,13 @@ export default function QuestionDetailsPage({ params }: PageProps) {
   }
 
   return (
-    <div className="bg-pesofts-gray-50 flex-grow font-sans py-10">
+    <div className="bg-pesofts-gray-50 flex-grow font-sans py-10 text-black">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
         {/* Back Link */}
         <button
           onClick={() => router.push("/community")}
-          className="inline-flex items-center text-sm font-bold text-pesofts-gray-500 hover:text-pesofts-gray-900 mb-6 transition-colors"
+          className="inline-flex items-center text-sm font-bold text-black hover:text-orange-500 mb-6 transition-colors"
         >
           <ChevronLeft className="h-4 w-4 mr-1" /> Back to discussions
         </button>
@@ -295,7 +390,7 @@ export default function QuestionDetailsPage({ params }: PageProps) {
             <div className="bg-white border border-pesofts-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
               <div className="flex items-start space-x-4 mb-6">
                 {/* Author Avatar */}
-                <div className="w-12 h-12 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-base text-pesofts-gray-700 flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-base text-black flex-shrink-0">
                   {question.profiles?.avatar_url ? (
                     <Image
                       src={question.profiles.avatar_url}
@@ -313,7 +408,7 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                 <div className="flex-grow min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 mb-2">
                     {question.is_pinned && (
-                      <span className="inline-flex items-center text-[10px] font-extrabold text-pesofts-red bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center text-[10px] font-extrabold text-orange-500 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full">
                         <Pin className="h-3 w-3 mr-0.5" /> Pinned
                       </span>
                     )}
@@ -322,21 +417,21 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                         <CheckCircle2 className="h-3 w-3 mr-0.5" /> Solved
                       </span>
                     ) : (
-                      <span className="inline-flex items-center text-[10px] font-extrabold text-pesofts-gray-500 bg-pesofts-gray-100 border border-pesofts-gray-200 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center text-[10px] font-extrabold text-black bg-pesofts-gray-100 border border-pesofts-gray-200 px-2 py-0.5 rounded-full">
                         Open
                       </span>
                     )}
-                    <span className="text-[10px] font-semibold text-pesofts-gray-500">
+                    <span className="text-[10px] font-semibold text-black">
                       · {question.category}
                     </span>
                   </div>
 
-                  <h1 className="text-xl md:text-2xl font-black text-pesofts-gray-950 tracking-tight mb-2 leading-snug break-words">
+                  <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight mb-2 leading-snug break-words">
                     {question.title}
                   </h1>
 
-                  <div className="text-xs text-pesofts-gray-500 flex flex-wrap items-center gap-1.5 font-medium leading-none">
-                    <span className="font-bold text-pesofts-gray-800">
+                  <div className="text-xs text-black flex flex-wrap items-center gap-1.5 font-medium leading-none">
+                    <span className="font-bold text-black">
                       {question.profiles?.full_name || "Community Member"}
                     </span>
                     {question.profiles?.title && (
@@ -352,13 +447,13 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                       </>
                     )}
                     <span>·</span>
-                    <span className="text-pesofts-gray-400 font-semibold">{timeAgo(question.created_at)}</span>
+                    <span className="text-black font-semibold">{timeAgo(question.created_at)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Question Content */}
-              <div className="text-sm text-pesofts-gray-700 leading-relaxed whitespace-pre-wrap mb-6 border-t border-pesofts-gray-100 pt-6">
+              <div className="text-sm text-black leading-relaxed whitespace-pre-wrap mb-6 border-t border-pesofts-gray-100 pt-6">
                 {question.content}
               </div>
 
@@ -368,8 +463,8 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                   onClick={handleUpvote}
                   className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-extrabold transition-all border ${
                     hasUpvoted
-                      ? "bg-pesofts-red text-white border-transparent shadow-sm"
-                      : "bg-white hover:bg-pesofts-gray-50 text-pesofts-gray-600 border-pesofts-gray-200"
+                      ? "bg-orange-500 text-white border-transparent shadow-sm"
+                      : "bg-white hover:bg-pesofts-gray-50 text-black border-pesofts-gray-200"
                   }`}
                 >
                   <ArrowUp className="h-4 w-4 mr-1.5" />
@@ -382,7 +477,7 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                     className={`inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
                       question.is_solved
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                        : "bg-white hover:bg-pesofts-gray-50 text-pesofts-gray-600 border-pesofts-gray-200"
+                        : "bg-white hover:bg-pesofts-gray-50 text-black border-pesofts-gray-200"
                     }`}
                   >
                     {question.is_solved ? (
@@ -401,71 +496,94 @@ export default function QuestionDetailsPage({ params }: PageProps) {
 
             {/* Replies Header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-extrabold text-pesofts-gray-900 flex items-center">
-                <MessageSquare className="h-5 w-5 text-pesofts-gray-400 mr-2" />
+              <h2 className="text-base font-extrabold text-black flex items-center">
+                <MessageSquare className="h-5 w-5 text-black mr-2" />
                 Replies ({replies.length})
               </h2>
             </div>
 
             {/* Replies List */}
             {replies.length === 0 ? (
-              <div className="bg-white border border-pesofts-gray-200 rounded-2xl p-8 text-center text-sm text-pesofts-gray-500 shadow-sm">
+              <div className="bg-white border border-pesofts-gray-200 rounded-2xl p-8 text-center text-sm text-black shadow-sm">
                 No replies yet. Be the first to reply to this question!
               </div>
             ) : (
               <div className="space-y-4">
-                {replies.map((reply) => (
-                  <div
-                    key={reply.id}
-                    className="bg-white border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm flex items-start space-x-4"
-                  >
-                    {/* Reply Author Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-sm text-pesofts-gray-700 flex-shrink-0">
-                      {reply.profiles?.avatar_url ? (
-                        <Image
-                          src={reply.profiles.avatar_url}
-                          alt={reply.profiles.full_name || ""}
-                          width={40}
-                          height={40}
-                          unoptimized
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        getInitials(reply.profiles?.full_name || null, reply.profiles?.id || null)
-                      )}
-                    </div>
+                {replies.map((reply) => {
+                  const replyUpvoteCount = (reply.community_reply_upvotes || []).length;
+                  const hasUpvotedReply = user && (reply.community_reply_upvotes || []).some((u) => u.user_id === user.id);
 
-                    {/* Reply Content */}
-                    <div className="flex-grow min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs text-pesofts-gray-500 font-medium">
-                          <span className="font-bold text-pesofts-gray-800">
-                            {reply.profiles?.full_name || "Community Member"}
-                          </span>
-                          {reply.profiles?.title && ` · ${reply.profiles.title}`}
-                          {reply.profiles?.organization && ` · ${reply.profiles.organization}`}
-                        </div>
-                        <span className="text-[10px] text-pesofts-gray-400 font-semibold">
-                          {timeAgo(reply.created_at)}
-                        </span>
+                  return (
+                    <div
+                      key={reply.id}
+                      className="bg-white border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm flex items-start space-x-4"
+                    >
+                      {/* Reply Author Avatar */}
+                      <div className="w-10 h-10 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-sm text-black flex-shrink-0">
+                        {reply.profiles?.avatar_url ? (
+                          <Image
+                            src={reply.profiles.avatar_url}
+                            alt={reply.profiles.full_name || ""}
+                            width={40}
+                            height={40}
+                            unoptimized
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          getInitials(reply.profiles?.full_name || null, reply.profiles?.id || null)
+                        )}
                       </div>
-                      <div className="text-sm text-pesofts-gray-700 leading-relaxed whitespace-pre-wrap">
-                        {reply.content}
+
+                      {/* Reply Content */}
+                      <div className="flex-grow min-w-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xs text-black font-medium">
+                            <span className="font-bold text-black">
+                              {reply.profiles?.full_name || "Community Member"}
+                            </span>
+                            {reply.profiles?.title && ` · ${reply.profiles.title}`}
+                            {reply.profiles?.organization && ` · ${reply.profiles.organization}`}
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-[10px] text-black font-semibold">
+                              {timeAgo(reply.created_at)}
+                            </span>
+                            <button
+                              onClick={() => handleReplyUpvote(reply.id)}
+                              className={`p-1.5 rounded-lg transition-all border flex items-center justify-center ${
+                                hasUpvotedReply
+                                  ? "bg-orange-500 text-white border-transparent"
+                                  : "bg-white hover:bg-pesofts-gray-50 text-black border-pesofts-gray-200"
+                              }`}
+                              title="Upvote comment"
+                            >
+                              <ArrowUp className="h-3.5 w-3.5" />
+                            </button>
+                            {replyUpvoteCount > 0 && (
+                              <span className="text-xs font-bold text-black">
+                                {replyUpvoteCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-sm text-black leading-relaxed whitespace-pre-wrap">
+                          {reply.content}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {/* Post Reply Editor */}
             <div className="bg-white border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-sm font-extrabold text-pesofts-gray-900 mb-4">Post a Reply</h3>
+              <h3 className="text-sm font-extrabold text-black mb-4">Post a Reply</h3>
 
               {user ? (
                 <form onSubmit={handlePostReply} className="space-y-4">
                   {replyError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-pesofts-red font-semibold">
+                    <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-xs text-orange-600 font-semibold">
                       {replyError}
                     </div>
                   )}
@@ -475,20 +593,29 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="Type your reply here..."
                     required
-                    className="block w-full px-4 py-3 text-sm text-pesofts-gray-900 placeholder-pesofts-gray-400 bg-white border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent transition-all"
+                    className="block w-full px-4 py-3 text-sm text-black placeholder-pesofts-gray-500 bg-white border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                   />
                   <div className="flex justify-end">
-                    <Button type="submit" variant="primary" disabled={submittingReply} className="min-w-[100px] !py-2">
+                    <Button 
+                      type="submit" 
+                      variant="primary" 
+                      disabled={submittingReply} 
+                      className="min-w-[100px] !py-2 !bg-orange-500 hover:!bg-orange-600 focus:!ring-orange-500 border-transparent text-white font-bold"
+                    >
                       {submittingReply ? "Posting..." : <><Send className="h-3.5 w-3.5 mr-1.5" /> Post Reply</>}
                     </Button>
                   </div>
                 </form>
               ) : (
-                <div className="p-6 bg-pesofts-gray-50 border border-pesofts-gray-150 rounded-xl text-center">
-                  <p className="text-sm text-pesofts-gray-500 mb-3">
+                <div className="p-6 bg-pesofts-gray-50 border border-pesofts-gray-100 rounded-xl text-center">
+                  <p className="text-sm text-black mb-3">
                     You must be logged in to reply to this discussion.
                   </p>
-                  <Button href="/login" variant="outline" className="bg-white !py-1.5 !px-4">
+                  <Button 
+                    href="/login" 
+                    variant="outline" 
+                    className="bg-white text-black hover:bg-pesofts-gray-100 !py-1.5 !px-4"
+                  >
                     Login
                   </Button>
                 </div>
@@ -502,44 +629,44 @@ export default function QuestionDetailsPage({ params }: PageProps) {
             
             {/* Thread Details Info Card */}
             <div className="bg-white border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-xs font-extrabold text-pesofts-gray-400 uppercase tracking-widest mb-4">
+              <h3 className="text-xs font-extrabold text-black uppercase tracking-widest mb-4">
                 Discussion Meta
               </h3>
 
               <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-150 pb-3">
-                  <span className="text-pesofts-gray-400 font-semibold">Category</span>
-                  <span className="font-bold text-pesofts-gray-700">{question.category}</span>
+                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-100 pb-3">
+                  <span className="text-black font-semibold">Category</span>
+                  <span className="font-bold text-black">{question.category}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-150 pb-3">
-                  <span className="text-pesofts-gray-400 font-semibold">Views</span>
-                  <span className="font-bold text-pesofts-gray-700 flex items-center">
-                    <Eye className="h-4 w-4 text-pesofts-gray-400 mr-1.5" />
+                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-100 pb-3">
+                  <span className="text-black font-semibold">Views</span>
+                  <span className="font-bold text-black flex items-center">
+                    <Eye className="h-4 w-4 text-black mr-1.5" />
                     {question.views}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-150 pb-3">
-                  <span className="text-pesofts-gray-400 font-semibold">Replies</span>
-                  <span className="font-bold text-pesofts-gray-700 flex items-center">
-                    <MessageSquare className="h-4 w-4 text-pesofts-gray-400 mr-1.5" />
+                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-100 pb-3">
+                  <span className="text-black font-semibold">Replies</span>
+                  <span className="font-bold text-black flex items-center">
+                    <MessageSquare className="h-4 w-4 text-black mr-1.5" />
                     {replies.length}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-150 pb-3">
-                  <span className="text-pesofts-gray-400 font-semibold">Upvotes</span>
-                  <span className="font-bold text-pesofts-gray-700 flex items-center">
-                    <ArrowUp className="h-4 w-4 text-pesofts-gray-400 mr-1.5" />
+                <div className="flex justify-between items-center text-sm border-b border-pesofts-gray-100 pb-3">
+                  <span className="text-black font-semibold">Upvotes</span>
+                  <span className="font-bold text-black flex items-center">
+                    <ArrowUp className="h-4 w-4 text-black mr-1.5" />
                     {upvotes.length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-pesofts-gray-400 font-semibold">Status</span>
+                  <span className="text-black font-semibold">Status</span>
                   {question.is_solved ? (
                     <span className="inline-flex items-center text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
                       Solved
                     </span>
                   ) : (
-                    <span className="inline-flex items-center text-xs font-extrabold text-pesofts-gray-500 bg-pesofts-gray-100 border border-pesofts-gray-200 px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center text-xs font-extrabold text-black bg-pesofts-gray-100 border border-pesofts-gray-200 px-2 py-0.5 rounded-full">
                       Open
                     </span>
                   )}
@@ -549,12 +676,12 @@ export default function QuestionDetailsPage({ params }: PageProps) {
 
             {/* Author Profile Summary */}
             <div className="bg-white border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-xs font-extrabold text-pesofts-gray-400 uppercase tracking-widest mb-4">
+              <h3 className="text-xs font-extrabold text-black uppercase tracking-widest mb-4">
                 Author
               </h3>
 
               <div className="flex items-center space-x-3.5 mb-4">
-                <div className="w-10 h-10 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-sm text-pesofts-gray-700 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-pesofts-gray-100 border border-pesofts-gray-200 flex items-center justify-center font-bold text-sm text-black flex-shrink-0">
                   {question.profiles?.avatar_url ? (
                     <Image
                       src={question.profiles.avatar_url}
@@ -569,23 +696,23 @@ export default function QuestionDetailsPage({ params }: PageProps) {
                   )}
                 </div>
                 <div>
-                  <div className="text-sm font-extrabold text-pesofts-gray-900 leading-tight">
+                  <div className="text-sm font-extrabold text-black leading-tight">
                     {question.profiles?.full_name || "Community Member"}
                   </div>
-                  <div className="text-[10px] text-pesofts-gray-400 font-bold uppercase tracking-wider mt-0.5">
+                  <div className="text-[10px] text-black font-bold uppercase tracking-wider mt-0.5">
                     {question.profiles?.role || "user"}
                   </div>
                 </div>
               </div>
 
               {question.profiles?.title && (
-                <div className="text-xs text-pesofts-gray-600 mb-2 font-medium">
-                  <span className="font-semibold text-pesofts-gray-400">Title:</span> {question.profiles.title}
+                <div className="text-xs text-black mb-2 font-medium">
+                  <span className="font-semibold text-black">Title:</span> {question.profiles.title}
                 </div>
               )}
               {question.profiles?.organization && (
-                <div className="text-xs text-pesofts-gray-600 font-medium">
-                  <span className="font-semibold text-pesofts-gray-400">Org:</span> {question.profiles.organization}
+                <div className="text-xs text-black font-medium">
+                  <span className="font-semibold text-black">Org:</span> {question.profiles.organization}
                 </div>
               )}
             </div>

@@ -100,9 +100,9 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
           <h1 className="text-3xl sm:text-4xl font-extrabold text-pesofts-gray-900 tracking-tight mb-4">
             Knowledge Base
           </h1>
-          <p className="text-base sm:text-lg text-pesofts-gray-500 max-w-3xl leading-relaxed">
+          {/* <p className="text-base sm:text-lg text-pesofts-gray-500 max-w-3xl leading-relaxed">
             Industry concepts, frameworks and long-form guides on online examinations, AI proctoring and modern assessment — written by practitioners.
-          </p>
+          </p> */}
         </div>
         {isAdmin && (
           <Button
