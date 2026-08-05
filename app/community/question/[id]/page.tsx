@@ -87,7 +87,6 @@ export default function QuestionDetailsPage({ params }: PageProps) {
 
       // 2. Fetch Replies + Profiles with comment upvotes
       let rData: any = null;
-      let rError: any = null;
 
       try {
         const res = await supabase
@@ -107,7 +106,7 @@ export default function QuestionDetailsPage({ params }: PageProps) {
           if (!fallbackRes.error) {
             rData = fallbackRes.data?.map((reply: any) => ({ ...reply, community_reply_upvotes: [] }));
           } else {
-            rError = fallbackRes.error;
+            console.error("Failed to load replies fallback:", fallbackRes.error);
           }
         } else {
           rData = res.data;

@@ -42,7 +42,6 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedTab, setSelectedTab] = useState<"recent" | "trending" | "unanswered" | "solved">("recent");
   const [isTableMissing, setIsTableMissing] = useState(false);
 
   useEffect(() => {
@@ -209,21 +208,10 @@ export default function CommunityPage() {
 
       return matchesCategory && matchesSearch;
     })
-    .filter((q) => {
-      if (selectedTab === "unanswered") return (q.community_replies || []).length === 0;
-      if (selectedTab === "solved") return q.is_solved;
-      return true;
-    })
     .sort((a, b) => {
       // Pinned questions always stay on top
       if (a.is_pinned && !b.is_pinned) return -1;
       if (!a.is_pinned && b.is_pinned) return 1;
-
-      if (selectedTab === "trending") {
-        const scoreA = (a.community_upvotes || []).length * 10 + a.views;
-        const scoreB = (b.community_upvotes || []).length * 10 + b.views;
-        return scoreB - scoreA;
-      }
 
       // Default to recent
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
