@@ -162,6 +162,8 @@ export const Header: React.FC = () => {
           {/* Visit Product Button - brand gradient */}
           <Button
             href="https://pesofts.com"
+            target="_blank"
+            rel="noopener noreferrer"
             variant="primary"
             style={{ background: "linear-gradient(to right, #fd0000 0%, #ca5407ba 100%)" }}
             className="!px-4 !py-2 !text-xs font-light text-white border-none shadow-sm hover:shadow transition-shadow hidden sm:inline-flex"
@@ -241,6 +243,8 @@ export const Header: React.FC = () => {
           {/* Visit Product Button - mobile view */}
           <Button
             href="https://pesofts.com"
+            target="_blank"
+            rel="noopener noreferrer"
             variant="primary"
             style={{ background: "linear-gradient(to right, #fd0000 0%, #ca5407ba 100%)" }}
             className="w-full py-2.5 font-light text-sm shadow-md rounded-xl text-white border-none"

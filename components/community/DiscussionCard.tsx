@@ -51,7 +51,7 @@ export const DiscussionCard: React.FC<DiscussionCardProps> = ({
   return (
     <Link
       href={`/community/question/${question.id}`}
-      className="block bg-white hover:border-pesofts-gray-300 border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200"
+      className="block bg-white hover:border-orange-500 border border-pesofts-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200"
     >
       <div className="flex items-start space-x-4">
         {/* User Avatar */}
@@ -139,7 +139,7 @@ export const DiscussionCard: React.FC<DiscussionCardProps> = ({
           className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
             hasUpvoted
               ? "bg-orange-500 text-white border-transparent"
-              : "bg-white hover:bg-pesofts-gray-50 text-black border-pesofts-gray-200"
+              : "bg-white hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 text-black border-pesofts-gray-200"
           }`}
         >
           <ArrowUp className="h-3.5 w-3.5 mr-1" />

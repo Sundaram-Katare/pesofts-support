@@ -97,7 +97,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
         {/* Header Actions */}
         <div className="flex justify-between items-center pb-6 border-b border-pesofts-gray-100 mb-8">
           <div>
-            <span className="text-xs font-bold text-pesofts-red uppercase tracking-wider block mb-1">
+            <span className="text-xs font-bold text-orange-600 uppercase tracking-wider block mb-1">
               Admin Studio
             </span>
             <h1 className="text-2xl font-black text-pesofts-gray-900 tracking-tight">
@@ -131,7 +131,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
         </div>
 
         {error && (
-          <div className="bg-pesofts-red-50 border border-pesofts-red-200 text-pesofts-red-700 p-3.5 rounded-xl text-xs font-medium mb-6 leading-relaxed">
+          <div className="bg-orange-50 border border-orange-200 text-orange-700 p-3.5 rounded-xl text-xs font-medium mb-6 leading-relaxed">
             {error}
           </div>
         )}
@@ -141,7 +141,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
           <button
             onClick={() => setEditTab("write")}
             className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${editTab === "write"
-                ? "border-pesofts-red text-pesofts-red"
+                ? "border-orange-500 text-orange-600"
                 : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
               }`}
           >
@@ -151,7 +151,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
           <button
             onClick={() => setEditTab("preview")}
             className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${editTab === "preview"
-                ? "border-pesofts-red text-pesofts-red"
+                ? "border-orange-500 text-orange-600"
                 : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
               }`}
           >
@@ -172,7 +172,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-base font-bold text-pesofts-gray-900"
+                  className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base font-bold text-pesofts-gray-900"
                   placeholder="Article title"
                 />
               </div>
@@ -185,7 +185,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
                   type="text"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800"
+                  className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-800"
                   placeholder="e.g. AI Proctoring"
                 />
               </div>
@@ -198,7 +198,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
                   type="text"
                   value={readingTime}
                   onChange={(e) => setReadingTime(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800"
+                  className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-800"
                   placeholder="e.g. 12 min"
                 />
               </div>
@@ -224,7 +224,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-600 leading-relaxed"
+                className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-600 leading-relaxed"
                 placeholder="Summarize this article in a sentence or two..."
               />
             </div>
@@ -237,7 +237,7 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={20}
-                className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent focus:bg-white transition-all"
+                className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all"
                 placeholder="# Write your heading..."
               />
             </div>

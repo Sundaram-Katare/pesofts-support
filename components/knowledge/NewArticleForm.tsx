@@ -56,7 +56,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Setting up Secure Browser Environment"
-            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm font-bold text-pesofts-gray-900 transition-all"
+            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm font-bold text-pesofts-gray-900 transition-all"
           />
         </div>
 
@@ -70,7 +70,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             placeholder="secure-browser-setup"
-            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm font-semibold text-pesofts-gray-600 transition-all"
+            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm font-semibold text-pesofts-gray-600 transition-all"
           />
         </div>
 
@@ -81,7 +81,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800 bg-white transition-all"
+            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-800 bg-white transition-all"
           >
             <option value="AI Proctoring">AI Proctoring</option>
             <option value="CBT">Computer Based Testing (CBT)</option>
@@ -103,7 +103,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
               value={customCategory}
               onChange={(e) => setCustomCategory(e.target.value)}
               placeholder="e.g. AI Proctoring Tools"
-              className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800 transition-all"
+              className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-800 transition-all"
             />
           </div>
         )}
@@ -117,7 +117,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
             required
             value={readingTime}
             onChange={(e) => setReadingTime(e.target.value)}
-            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800 transition-all"
+            className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-800 transition-all"
           />
         </div>
       </div>
@@ -132,7 +132,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Provide a short card summary for the listing page..."
-          className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-600 leading-relaxed transition-all"
+          className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm text-pesofts-gray-600 leading-relaxed transition-all"
         />
       </div>
 
@@ -144,7 +144,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
             onClick={() => setTab("write")}
             className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${
               tab === "write"
-                ? "border-pesofts-red text-pesofts-red"
+                ? "border-orange-500 text-orange-600"
                 : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
             }`}
           >
@@ -156,7 +156,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
             onClick={() => setTab("preview")}
             className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${
               tab === "preview"
-                ? "border-pesofts-red text-pesofts-red"
+                ? "border-orange-500 text-orange-600"
                 : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
             }`}
           >
@@ -173,7 +173,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="# Enter your Markdown document title&#10;&#10;Write your long form guide here. Use headers like ## Subtitle to generate sections.&#10;&#10;## Code Block Example&#10;```js&#10;console.log('Hello examinees');&#10;```&#10;"
-              className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-2xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent focus:bg-white transition-all"
+              className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-2xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all"
             />
             <span className="flex items-center text-[10px] text-pesofts-gray-400">
               <HelpCircle className="w-3 h-3 mr-1" />

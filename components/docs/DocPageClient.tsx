@@ -201,10 +201,26 @@ export const DocPageClient: React.FC<DocPageClientProps> = ({
               </p>
               <a
                 href="https://pesofts.com/contact.html"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center text-xs font-semibold text-orange-600 hover:text-orange-700 transition-colors"
               >
                 Contact Support <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
               </a>
+            </div>
+
+            {/* Create Doc Card */}
+            <div className="bg-black border border-neutral-900 rounded-xl p-5 text-white shadow-sm flex flex-col">
+              <h5 className="text-xs font-bold text-white mb-1">Create Document</h5>
+              <p className="text-[11px] text-neutral-400 leading-relaxed mb-3.5 font-normal">
+                Share your knowledge with others by writing a new documentation article.
+              </p>
+              <Link
+                href="/docs/new"
+                className="inline-flex items-center text-xs font-semibold text-white hover:text-orange-400 transition-colors mt-auto self-start"
+              >
+                Create New Doc <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+              </Link>
             </div>
           </div>
         </aside>

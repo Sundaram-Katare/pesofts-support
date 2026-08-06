@@ -26,7 +26,7 @@ export const ArticleSidebar: React.FC<ArticleSidebarProps> = ({
               <a
                 key={heading.id}
                 href={`#${heading.id}`}
-                className="block text-sm text-pesofts-gray-600 hover:text-pesofts-red transition-colors duration-150 line-clamp-1 pl-1"
+                className="block text-sm text-pesofts-gray-600 hover:text-orange-600 transition-colors duration-150 line-clamp-1 pl-1"
               >
                 {heading.text}
               </a>
@@ -52,10 +52,10 @@ export const ArticleSidebar: React.FC<ArticleSidebarProps> = ({
                 href={`/knowledge-base/${rel.slug}`}
                 className="group block"
               >
-                <h5 className="text-sm font-bold text-pesofts-gray-800 group-hover:text-pesofts-red transition-colors duration-150 line-clamp-2">
+                <h5 className="text-sm font-bold text-pesofts-gray-800 group-hover:text-orange-600 transition-colors duration-150 line-clamp-2">
                   {rel.title}
                 </h5>
-                <span className="inline-flex items-center text-[11px] text-pesofts-red font-medium mt-1">
+                <span className="inline-flex items-center text-[11px] text-orange-600 font-medium mt-1">
                   Read now
                   <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" />
                 </span>
@@ -66,14 +66,16 @@ export const ArticleSidebar: React.FC<ArticleSidebarProps> = ({
       </div>
 
       {/* Support Callout */}
-      <div className="bg-pesofts-red-50/30 border border-pesofts-red-100 rounded-xl p-6">
+      <div className="bg-orange-50/30 border border-orange-100 rounded-xl p-6">
         <h4 className="font-bold text-sm text-pesofts-gray-900 mb-2">Need more assistance?</h4>
         <p className="text-xs text-pesofts-gray-500 mb-4 leading-relaxed">
           Can&apos;t find the answers you&apos;re looking for? Reach out to our technical support team for direct help.
         </p>
         <a
           href="https://pesofts.com/contact.html"
-          className="inline-flex items-center justify-center font-bold rounded-lg text-xs px-4 py-2 bg-pesofts-red text-white hover:bg-pesofts-red-600 transition-all duration-200 shadow-sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center font-bold rounded-lg text-xs px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 transition-all duration-200 shadow-sm"
         >
           Contact Support
         </a>

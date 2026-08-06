@@ -29,21 +29,21 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     <button
       onClick={onClick}
       className={`flex items-center p-4 rounded-xl border text-left transition-all duration-200 w-full ${isActive
-          ? "border-pesofts-red bg-pesofts-red-50 text-pesofts-red"
+          ? "border-orange-500 bg-orange-50 text-orange-600"
           : "border-pesofts-gray-200 bg-white hover:border-pesofts-gray-300 text-pesofts-gray-800"
         }`}
     >
       <div
-        className={`p-2.5 rounded-lg mr-4 ${isActive ? "bg-white text-pesofts-red shadow-sm" : "bg-pesofts-gray-50 text-pesofts-gray-500"
+        className={`p-2.5 rounded-lg mr-4 ${isActive ? "bg-white text-orange-600 shadow-sm" : "bg-pesofts-gray-50 text-pesofts-gray-500"
           }`}
       >
         {getIcon()}
       </div>
       <div>
-        <h4 className="font-bold text-sm tracking-tight text-pesofts-gray-900 group-hover:text-pesofts-red transition-colors duration-150">
+        <h4 className="font-bold text-sm tracking-tight text-pesofts-gray-900 group-hover:text-orange-600 transition-colors duration-150">
           {name}
         </h4>
-        <p className={`text-xs ${isActive ? "text-pesofts-red-700" : "text-pesofts-gray-400"}`}>
+        <p className={`text-xs ${isActive ? "text-orange-700" : "text-pesofts-gray-400"}`}>
           {count} {count === 1 ? "article" : "articles"}
         </p>
       </div>

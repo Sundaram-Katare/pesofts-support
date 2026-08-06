@@ -108,7 +108,7 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
           <Button
             href="/knowledge-base/new"
             variant="primary"
-            className="!px-4 !py-2.5 !text-xs font-bold shrink-0 shadow-sm transition-transform hover:-translate-y-0.5"
+            className="!px-4 !py-2.5 !text-xs font-bold shrink-0 shadow-sm transition-transform hover:-translate-y-0.5 !bg-orange-500 hover:!bg-orange-600 focus:!ring-orange-500 border-transparent"
           >
             + Add Article
           </Button>
@@ -136,7 +136,7 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
           {(activeCategory || searchQuery) && (
             <button
               onClick={handleResetFilters}
-              className="text-xs font-semibold text-pesofts-red hover:underline flex items-center"
+              className="text-xs font-semibold text-orange-600 hover:underline flex items-center"
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1" />
               Reset Filters
@@ -161,7 +161,7 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
       <div>
         <div className="border-b border-pesofts-gray-100 pb-5 mb-8 flex justify-between items-baseline">
           <div>
-            <span className="text-xs font-bold text-pesofts-red uppercase tracking-wider block mb-1">
+            <span className="text-xs font-bold text-orange-600 uppercase tracking-wider block mb-1">
               {activeCategory ? activeCategory : "Editors' Picks"}
             </span>
             <h2 className="text-2xl font-extrabold text-pesofts-gray-900 tracking-tight">
@@ -199,7 +199,7 @@ export const KnowledgeBaseClient: React.FC<KnowledgeBaseClientProps> = (props) =
   return (
     <Suspense fallback={
       <div className="flex-grow flex items-center justify-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pesofts-red"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     }>
       <KnowledgeBaseInner {...props} />

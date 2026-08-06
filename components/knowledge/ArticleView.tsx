@@ -26,7 +26,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <Link
             href={`/knowledge-base?category=${encodeURIComponent(article.category)}`}
-            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-pesofts-red-50 text-pesofts-red hover:bg-pesofts-red-100 transition-colors"
+            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
           >
             <Bookmark className="w-3.5 h-3.5 mr-1" />
             {article.category}
@@ -44,7 +44,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           {isAdmin && (
             <button
               onClick={onEditClick}
-              className="ml-auto inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold border border-pesofts-red bg-white text-pesofts-red hover:bg-pesofts-red-50 transition-colors"
+              className="ml-auto inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold border border-orange-500 bg-white text-orange-600 hover:bg-orange-50 transition-colors"
             >
               <Edit3 className="w-3 h-3 mr-1" />
               Edit Article
