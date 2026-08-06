@@ -140,22 +140,20 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
         <div className="flex border-b border-pesofts-gray-200 mb-6">
           <button
             onClick={() => setEditTab("write")}
-            className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${
-              editTab === "write"
+            className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${editTab === "write"
                 ? "border-pesofts-red text-pesofts-red"
                 : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
-            }`}
+              }`}
           >
             <FileEdit className="w-3.5 h-3.5 mr-1.5" />
             Write Markdown
           </button>
           <button
             onClick={() => setEditTab("preview")}
-            className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${
-              editTab === "preview"
+            className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${editTab === "preview"
                 ? "border-pesofts-red text-pesofts-red"
                 : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
-            }`}
+              }`}
           >
             <Eye className="w-3.5 h-3.5 mr-1.5" />
             Live Preview

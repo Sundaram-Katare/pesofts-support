@@ -7,7 +7,8 @@ import { useAuth } from "@/components/layout/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumb } from "@/components/knowledge/Breadcrumb";
-import { Save, Eye, FileEdit, HelpCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { Save, ArrowLeft, Loader2 } from "lucide-react";
+import { NewArticleForm } from "@/components/knowledge/NewArticleForm";
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -143,14 +144,14 @@ export default function NewArticlePage() {
   };
 
   return (
-    <div className="bg-pesofts-gray-50/30 min-h-screen py-10">
+    <div className="bg-pesofts-gray-50/30 min-h-screen py-10 text-black">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb */}
+        {/* Breadcrumb Navigation */}
         <Breadcrumb
           items={[
             { label: "Knowledge Base", href: "/knowledge-base" },
-            { label: "New Article" },
+            { label: "New Article" }
           ]}
           className="mb-6"
         />
@@ -164,7 +165,7 @@ export default function NewArticlePage() {
           Back to Knowledge Base
         </Link>
 
-        {/* Form & Workspace Container */}
+        {/* Form Container */}
         <form onSubmit={handlePublish} className="space-y-8 bg-white border border-pesofts-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm">
           
           {/* Header */}
@@ -174,14 +175,14 @@ export default function NewArticlePage() {
                 Admin Studio
               </span>
               <h1 className="text-2xl font-black text-pesofts-gray-900 tracking-tight">
-                Create New Article
+                Create Knowledge Base Article
               </h1>
             </div>
             <Button
               type="submit"
               variant="primary"
               disabled={publishing}
-              className="flex items-center font-bold text-xs shadow-sm"
+              className="flex items-center font-bold text-xs shadow-sm !bg-pesofts-red hover:!bg-pesofts-red-600 focus:!ring-pesofts-red border-transparent text-white"
             >
               {publishing ? (
                 <>
@@ -203,161 +204,25 @@ export default function NewArticlePage() {
             </div>
           )}
 
-          {/* Metadata Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
-                Article Title
-              </label>
-              <input
-                type="text"
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Setting up Secure Browser Environment"
-                className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm font-bold text-pesofts-gray-900 transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
-                Slug (URL Path)
-              </label>
-              <input
-                type="text"
-                required
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="secure-browser-setup"
-                className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm font-semibold text-pesofts-gray-600 transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800 bg-white transition-all"
-              >
-                <option value="AI Proctoring">AI Proctoring</option>
-                <option value="CBT">Computer Based Testing (CBT)</option>
-                <option value="Security">Security & Lockdowns</option>
-                <option value="Assessment">Modern Assessment</option>
-                <option value="General">General Guides</option>
-                <option value="Custom">Custom Category...</option>
-              </select>
-            </div>
-
-            {category === "Custom" && (
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
-                  Custom Category Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                  placeholder="e.g. AI Proctoring Tools"
-                  className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800 transition-all"
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
-                Reading Time (Auto-calculated)
-              </label>
-              <input
-                type="text"
-                required
-                value={readingTime}
-                onChange={(e) => setReadingTime(e.target.value)}
-                className="w-full px-4 py-2.5 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-800 transition-all"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
-              Brief Description
-            </label>
-            <textarea
-              required
-              rows={2}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide a short card summary for the listing page..."
-              className="w-full px-4 py-3 border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent text-sm text-pesofts-gray-600 leading-relaxed transition-all"
-            />
-          </div>
-
-          {/* Edit Tabs */}
-          <div className="border-t border-pesofts-gray-100 pt-6">
-            <div className="flex border-b border-pesofts-gray-200 mb-6">
-              <button
-                type="button"
-                onClick={() => setTab("write")}
-                className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${
-                  tab === "write"
-                    ? "border-pesofts-red text-pesofts-red"
-                    : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
-                }`}
-              >
-                <FileEdit className="w-3.5 h-3.5 mr-1.5" />
-                Write Markdown
-              </button>
-              <button
-                type="button"
-                onClick={() => setTab("preview")}
-                className={`flex items-center px-4 py-2 border-b-2 font-semibold text-xs tracking-wider uppercase transition-colors ${
-                  tab === "preview"
-                    ? "border-pesofts-red text-pesofts-red"
-                    : "border-transparent text-pesofts-gray-400 hover:text-pesofts-gray-700"
-                }`}
-              >
-                <Eye className="w-3.5 h-3.5 mr-1.5" />
-                Live Preview
-              </button>
-            </div>
-
-            {tab === "write" ? (
-              <div className="space-y-2">
-                <textarea
-                  required
-                  rows={22}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="# Enter your Markdown document title
-
-Write your long form guide here. Use headers like ## Subtitle to generate sections.
-
-## Code Block Example
-```js
-console.log('Hello examinees');
-```
-"
-                  className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-2xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-pesofts-red focus:border-transparent focus:bg-white transition-all"
-                />
-                <span className="flex items-center text-[10px] text-pesofts-gray-400">
-                  <HelpCircle className="w-3 h-3 mr-1" />
-                  Markdown is supported. Auto-saves drafts in form state.
-                </span>
-              </div>
-            ) : (
-              <div className="bg-pesofts-gray-50/50 border border-pesofts-gray-200 rounded-2xl p-6 sm:p-8 min-h-[400px]">
-                <h1 className="text-3xl font-extrabold text-pesofts-gray-900 mb-2">{title || "Untitled"}</h1>
-                <p className="text-sm text-pesofts-gray-500 mb-6 italic">{description || "No description provided."}</p>
-                <div
-                  className="prose max-w-none text-pesofts-gray-700 article-content"
-                  dangerouslySetInnerHTML={{ __html: previewHtml }}
-                />
-              </div>
-            )}
-          </div>
+          <NewArticleForm
+            title={title}
+            setTitle={setTitle}
+            slug={slug}
+            setSlug={setSlug}
+            category={category}
+            setCategory={setCategory}
+            customCategory={customCategory}
+            setCustomCategory={setCustomCategory}
+            readingTime={readingTime}
+            setReadingTime={setReadingTime}
+            description={description}
+            setDescription={setDescription}
+            content={content}
+            setContent={setContent}
+            tab={tab}
+            setTab={setTab}
+            previewHtml={previewHtml}
+          />
         </form>
       </div>
     </div>

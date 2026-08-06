@@ -60,7 +60,7 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (category) params.set("category", category);
-    
+
     const stringParams = params.toString();
     router.replace(`/knowledge-base${stringParams ? `?${stringParams}` : ""}`, { scroll: false });
   };
@@ -71,9 +71,9 @@ const KnowledgeBaseInner: React.FC<KnowledgeBaseClientProps> = ({
 
     const matchesSearch = searchQuery
       ? article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchQuery.toLowerCase())
+      article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.content.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
 
     return matchesCategory && matchesSearch;

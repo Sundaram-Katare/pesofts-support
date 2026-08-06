@@ -85,7 +85,7 @@ export const DocPageClient: React.FC<DocPageClientProps> = ({
             className="fixed inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
-          
+
           {/* Drawer Body */}
           <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-white shadow-xl animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between p-4 border-b border-pesofts-gray-100">
@@ -106,10 +106,10 @@ export const DocPageClient: React.FC<DocPageClientProps> = ({
 
       {/* Grid Container */}
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Middle Column: Core Documentation Article */}
         <div className="lg:col-span-9 min-w-0">
-          
+
           {/* Breadcrumbs - Desktop */}
           <nav className="hidden md:flex items-center space-x-1.5 text-xs text-black font-semibold mb-6 select-none">
             <Link href="/docs" className="hover:text-orange-600 transition-colors">Docs</Link>
@@ -134,7 +134,7 @@ export const DocPageClient: React.FC<DocPageClientProps> = ({
                 </Link>
               )}
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-black select-none">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-100/60">
                 {article.categoryName}
@@ -181,11 +181,10 @@ export const DocPageClient: React.FC<DocPageClientProps> = ({
                     <a
                       key={heading.id}
                       href={`#${heading.id}`}
-                      className={`block text-xs transition-all duration-150 pl-1 border-l-2 ${
-                        activeId === heading.id
+                      className={`block text-xs transition-all duration-150 pl-1 border-l-2 ${activeId === heading.id
                           ? "text-orange-600 font-semibold border-orange-500"
                           : "text-black hover:text-orange-600 font-normal border-transparent hover:border-orange-500"
-                      } focus:outline-none`}
+                        } focus:outline-none`}
                     >
                       # {heading.text}
                     </a>
@@ -193,7 +192,7 @@ export const DocPageClient: React.FC<DocPageClientProps> = ({
                 </nav>
               </div>
             )}
-            
+
             {/* Help Prompt */}
             <div className="bg-pesofts-gray-50/50 border border-pesofts-gray-100 rounded-xl p-5">
               <h5 className="text-xs font-bold text-black mb-1">Still stuck?</h5>
