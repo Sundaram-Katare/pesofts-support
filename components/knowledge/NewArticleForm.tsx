@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { FileEdit, Eye, HelpCircle } from "lucide-react";
+import { MediaUploadCards } from "@/components/ui/MediaUploadCards";
 
 interface NewArticleFormProps {
   title: string;
@@ -42,6 +43,7 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
   setTab,
   previewHtml,
 }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   return (
     <div className="space-y-6">
       {/* Metadata Grid */}
@@ -166,19 +168,27 @@ export const NewArticleForm: React.FC<NewArticleFormProps> = ({
         </div>
 
         {tab === "write" ? (
-          <div className="space-y-2">
-            <textarea
-              required
-              rows={22}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="# Enter your Markdown document title&#10;&#10;Write your long form guide here. Use headers like ## Subtitle to generate sections.&#10;&#10;## Code Block Example&#10;```js&#10;console.log('Hello examinees');&#10;```&#10;"
-              className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-2xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all"
+          <div className="space-y-4">
+            <MediaUploadCards
+              content={content}
+              setContent={setContent}
+              textareaRef={textareaRef}
             />
-            <span className="flex items-center text-[10px] text-pesofts-gray-400">
-              <HelpCircle className="w-3 h-3 mr-1" />
-              Markdown is supported. Auto-saves drafts in form state.
-            </span>
+            <div className="space-y-2">
+              <textarea
+                ref={textareaRef}
+                required
+                rows={22}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="# Enter your Markdown document title&#10;&#10;Write your long form guide here. Use headers like ## Subtitle to generate sections.&#10;&#10;## Code Block Example&#10;```js&#10;console.log('Hello examinees');&#10;```&#10;"
+                className="w-full px-4 py-4 border border-pesofts-gray-200 rounded-2xl font-mono text-sm leading-relaxed text-pesofts-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all"
+              />
+              <span className="flex items-center text-[10px] text-pesofts-gray-400">
+                <HelpCircle className="w-3 h-3 mr-1" />
+                Markdown is supported. Auto-saves drafts in form state.
+              </span>
+            </div>
           </div>
         ) : (
           <div className="bg-pesofts-gray-50/50 border border-pesofts-gray-200 rounded-2xl p-6 sm:p-8 min-h-[400px]">

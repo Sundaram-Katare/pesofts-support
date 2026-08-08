@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { FileEdit, Eye } from "lucide-react";
+import { MediaUploadCards } from "@/components/ui/MediaUploadCards";
 
 interface CategoryMapEntry {
   slug: string;
@@ -45,6 +46,7 @@ export const EditDocForm: React.FC<EditDocFormProps> = ({
   setTab,
   previewHtml,
 }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   return (
     <div className="space-y-6">
       {/* Title & Metadata fields */}
@@ -154,18 +156,26 @@ export const EditDocForm: React.FC<EditDocFormProps> = ({
 
       {/* Editor Workspace */}
       {tab === "write" ? (
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-black uppercase tracking-wider">
-            Document Body (Markdown)
-          </label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="## Heading&#10;Write content in standard Markdown format here..."
-            rows={16}
-            required
-            className="w-full px-4 py-3 text-sm text-black placeholder-pesofts-gray-500 bg-white border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono resize-y"
+        <div className="space-y-4">
+          <MediaUploadCards
+            content={content}
+            setContent={setContent}
+            textareaRef={textareaRef}
           />
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-black uppercase tracking-wider">
+              Document Body (Markdown)
+            </label>
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="## Heading&#10;Write content in standard Markdown format here..."
+              rows={16}
+              required
+              className="w-full px-4 py-3 text-sm text-black placeholder-pesofts-gray-500 bg-white border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono resize-y"
+            />
+          </div>
         </div>
       ) : (
         <div className="bg-pesofts-gray-50/50 border border-pesofts-gray-200 rounded-2xl p-6 sm:p-8 min-h-[300px]">

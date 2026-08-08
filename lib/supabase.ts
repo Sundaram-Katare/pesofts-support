@@ -453,6 +453,8 @@ function mockQueryBuilder(table: string) {
   return builder;
 }
 
+const mockStorageMap = new Map<string, string>();
+
 export const supabase = {
   auth: {
     signUp: async (credentials: SignUpWithPasswordCredentials) => {
@@ -491,5 +493,30 @@ export const supabase = {
       return supabaseInstance.from(table);
     }
     return mockQueryBuilder(table) as any;
+  },
+  storage: {
+    from: (bucket: string) => ({
+      upload: async (path: string, file: File, options?: any) => {
+        if (supabaseInstance) {
+          return supabaseInstance.storage.from(bucket).upload(path, file, options);
+        }
+        const objectUrl = typeof window !== "undefined" ? URL.createObjectURL(file) : "";
+        mockStorageMap.set(`${bucket}/${path}`, objectUrl);
+        return {
+          data: { path },
+          error: null,
+        };
+      },
+      getPublicUrl: (path: string) => {
+        if (supabaseInstance) {
+          return supabaseInstance.storage.from(bucket).getPublicUrl(path);
+        }
+        const key = `${bucket}/${path}`;
+        const publicUrl = mockStorageMap.get(key) || `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop`;
+        return {
+          data: { publicUrl },
+        };
+      },
+    }),
   },
 };

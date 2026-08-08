@@ -67,12 +67,7 @@ export const Header: React.FC = () => {
             >
               Documentation
             </Link>
-            <span
-              className="px-3 py-2 text-xs lg:text-sm font-light whitespace-nowrap tracking-wide text-pesofts-gray-300 cursor-not-allowed select-none"
-              title="Coming Soon"
-            >
-              Academy
-            </span>
+
             <Link
               href="/community"
               className={`px-3 py-2 rounded-lg text-xs lg:text-sm font-light whitespace-nowrap tracking-wide transition-all duration-150 ${
@@ -212,9 +207,7 @@ export const Header: React.FC = () => {
             >
               Documentation
             </Link>
-            <span className="px-3 py-2.5 text-sm font-light text-pesofts-gray-300 cursor-not-allowed select-none">
-              Academy
-            </span>
+
             <Link
               href="/community"
               onClick={() => setIsMobileMenuOpen(false)}

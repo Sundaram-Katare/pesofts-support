@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/layout/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Save, Eye, FileEdit, ArrowLeft, Loader2 } from "lucide-react";
+import { MediaUploadCards } from "@/components/ui/MediaUploadCards";
 
 export default function NewDocPage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function NewDocPage() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [readingTime, setReadingTime] = useState("5 min");
   const [description, setDescription] = useState("");
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [content, setContent] = useState("");
   
   // UI states
@@ -311,18 +314,26 @@ export default function NewDocPage() {
 
           {/* Editor Workspace */}
           {tab === "write" ? (
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-black uppercase tracking-wider">
-                Document Body (Markdown)
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="## Heading&#10;Write content in standard Markdown format here..."
-                rows={16}
-                required
-                className="w-full px-4 py-3 text-sm text-black placeholder-pesofts-gray-500 bg-white border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono resize-y"
+            <div className="space-y-4">
+              <MediaUploadCards
+                content={content}
+                setContent={setContent}
+                textareaRef={textareaRef}
               />
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-black uppercase tracking-wider">
+                  Document Body (Markdown)
+                </label>
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="## Heading&#10;Write content in standard Markdown format here..."
+                  rows={16}
+                  required
+                  className="w-full px-4 py-3 text-sm text-black placeholder-pesofts-gray-500 bg-white border border-pesofts-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono resize-y"
+                />
+              </div>
             </div>
           ) : (
             <div className="bg-pesofts-gray-50/50 border border-pesofts-gray-200 rounded-2xl p-6 sm:p-8 min-h-[300px]">

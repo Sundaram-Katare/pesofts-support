@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Save, X, FileEdit, Eye } from "lucide-react";
 import { Article } from "@/lib/articles";
+import { MediaUploadCards } from "@/components/ui/MediaUploadCards";
 
 interface ArticleEditProps {
   article: Article;
@@ -26,6 +27,8 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
   // Preview tab in editing mode
   const [editTab, setEditTab] = useState<"write" | "preview">("write");
   const [previewHtml, setPreviewHtml] = useState("");
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Convert markdown to preview HTML when switching to preview tab
   useEffect(() => {
@@ -233,7 +236,13 @@ export const ArticleEdit: React.FC<ArticleEditProps> = ({
               <label className="block text-[10px] font-bold uppercase tracking-widest text-pesofts-gray-400 mb-1.5">
                 Markdown Content
               </label>
+              <MediaUploadCards
+                content={content}
+                setContent={setContent}
+                textareaRef={textareaRef}
+              />
               <textarea
+                ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={20}
