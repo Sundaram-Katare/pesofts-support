@@ -12,6 +12,8 @@ interface PageProps {
   }>;
 }
 
+export const revalidate = 0;
+
 // 1. Dynamic SEO Metadata Generation
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
