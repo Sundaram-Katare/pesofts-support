@@ -126,12 +126,18 @@ lastUpdated: ${new Date().toISOString().split("T")[0]}
 ${content}
 `;
 
-    // Ensure directory exists
-    if (!fs.existsSync(contentDirectory)) {
-      fs.mkdirSync(contentDirectory, { recursive: true });
+    // Ensure directory exists and write file
+    try {
+      if (!fs.existsSync(contentDirectory)) {
+        fs.mkdirSync(contentDirectory, { recursive: true });
+      }
+      fs.writeFileSync(fullPath, fileContent, "utf8");
+    } catch (fsError: any) {
+      console.warn("Local filesystem write skipped (expected on read-only serverless platforms):", fsError.message);
+      if (isUsingMockAuth) {
+        throw fsError;
+      }
     }
-
-    fs.writeFileSync(fullPath, fileContent, "utf8");
 
     // Write to database if using real database
     if (!isUsingMockAuth) {
